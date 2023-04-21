@@ -13,6 +13,7 @@ export const logger = Pino({
   level: env.LOG_LEVEL,
   messageKey: 'message',
   redact: ['req.headers.authorization'],
+  prettyPrint: true,
   formatters: {
     level(label, number) {
       return {
