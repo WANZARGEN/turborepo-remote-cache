@@ -39,6 +39,13 @@ async function turboRemoteCache(
     projectId: instance.config.GCS_PROJECT_ID,
     useTmp: !!instance.config.STORAGE_PATH_USE_TMP_FOLDER,
     connectionString: instance.config.ABS_CONNECTION_STRING,
+    repo: instance.config.GIT_REPOSITORY,
+    branch: instance.config.GIT_BRANCH,
+    remote: instance.config.GIT_REMOTE,
+    userName: instance.config.GIT_USER_NAME,
+    userEmail: instance.config.GIT_USER_EMAIL,
+    userPassword: instance.config.GIT_USER_PASSWORD,
+    host: instance.config.GIT_HOST,
   })
   instance.decorate('location', location)
 

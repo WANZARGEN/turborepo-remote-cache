@@ -12,6 +12,7 @@ import {
   createAzureBlobStorage,
   type AzureBlobStorageOptions as AzureBlobStorageOpts,
 } from './azure-blob-storage'
+import { createGitRepository, type GitRepositoryOptions as GROpts } from './git-repository'
 
 const pipeline = promisify(pipelineCallback)
 const TURBO_CACHE_FOLDER_NAME = 'turborepocache' as const
@@ -21,6 +22,7 @@ type LocalOptions = Partial<LocalOpts>
 type S3Options = Omit<S3Opts, 'bucket'> & LocalOptions
 type GoogleCloudStorageOptions = Omit<GCSOpts, 'bucket'> & LocalOptions
 type AzureBlobStorageOptions = Omit<AzureBlobStorageOpts, 'bucket'> & LocalOptions
+type GitRepositoryOptions = Partial<GROpts> & LocalOptions
 
 type ProviderOptions<Provider extends STORAGE_PROVIDERS> = Provider extends STORAGE_PROVIDERS.LOCAL
   ? LocalOptions
@@ -30,6 +32,8 @@ type ProviderOptions<Provider extends STORAGE_PROVIDERS> = Provider extends STOR
   ? AzureBlobStorageOptions
   : Provider extends STORAGE_PROVIDERS.GOOGLE_CLOUD_STORAGE
   ? GoogleCloudStorageOptions
+  : Provider extends STORAGE_PROVIDERS.GIT_REPOSITORY
+  ? GitRepositoryOptions
   : never
 
 // https://github.com/maxogden/abstract-blob-store#api
@@ -62,6 +66,10 @@ async function createStorageLocation<Provider extends STORAGE_PROVIDERS>(
     case STORAGE_PROVIDERS.AZURE_BLOB_STORAGE: {
       const { connectionString } = providerOptions as AzureBlobStorageOptions
       return createAzureBlobStorage({ containerName: path, connectionString })
+    }
+    case STORAGE_PROVIDERS.GIT_REPOSITORY: {
+      const obj = providerOptions as GROpts
+      return await createGitRepository(obj)
     }
     default:
       throw new Error(

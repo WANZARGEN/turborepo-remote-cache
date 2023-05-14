@@ -14,6 +14,7 @@ export enum STORAGE_PROVIDERS {
   s3 = 's3',
   GOOGLE_CLOUD_STORAGE = 'google-cloud-storage',
   AZURE_BLOB_STORAGE = 'azure-blob-storage',
+  GIT_REPOSITORY = 'git-repository',
 }
 
 const schema = Type.Object(
@@ -46,6 +47,15 @@ const schema = Type.Object(
 
     // Azure Blob Storage credentials
     ABS_CONNECTION_STRING: Type.Optional(Type.String()),
+
+    // Git Repository vars and credentials
+    GIT_REPOSITORY: Type.Optional(Type.String()),
+    GIT_BRANCH: Type.Optional(Type.String({ default: 'main' })),
+    GIT_REMOTE: Type.Optional(Type.String({ default: 'origin' })),
+    GIT_USER_NAME: Type.Optional(Type.String()),
+    GIT_USER_EMAIL: Type.Optional(Type.String()),
+    GIT_USER_PASSWORD: Type.Optional(Type.String()),
+    GIT_HOST: Type.Optional(Type.String({ default: 'github.com' })),
   },
   {
     additionalProperties: false,

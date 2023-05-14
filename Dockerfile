@@ -28,8 +28,16 @@ RUN rm -rf $PROJECT_WORKDIR/.pnpm-store
 # start new image for lower size
 FROM --platform=${TARGETPLATFORM} node:18.15.0-alpine3.17@sha256:ffc770cdc09c9e83cccd99d663bb6ed56cfaa1bab94baf1b12b626aebeca9c10
 
+RUN apk update
+
 # dumb-init registers signal handlers for every signal that can be caught
-RUN apk update && apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init
+
+# Add git to the image for git-repository storage
+RUN apk add --no-cache git
+
+# Add curl to the image for healthcheck
+RUN apk add --no-cache curl
 
 # create use with no permissions
 RUN addgroup -g 101 -S app && adduser -u 100 -S -G app -s /bin/false app
