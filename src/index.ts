@@ -6,6 +6,7 @@ import { env } from './env'
 
 const app = createApp({
   trustProxy: true,
+  pluginTimeout: 200000,
 })
 
 closeWithGrace(
