@@ -28,21 +28,19 @@ async function turboRemoteCache(
     },
   )
 
-  instance.decorate(
-    'location',
-    createLocation(provider, {
-      accessKey: instance.config.S3_ACCESS_KEY,
-      secretKey: instance.config.S3_SECRET_KEY,
-      path: instance.config.STORAGE_PATH,
-      region: instance.config.S3_REGION,
-      endpoint: instance.config.S3_ENDPOINT,
-      clientEmail: instance.config.GCS_CLIENT_EMAIL,
-      privateKey: instance.config.GCS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      projectId: instance.config.GCS_PROJECT_ID,
-      useTmp: !!instance.config.STORAGE_PATH_USE_TMP_FOLDER,
-      connectionString: instance.config.ABS_CONNECTION_STRING,
-    }),
-  )
+  const location = await createLocation(provider, {
+    accessKey: instance.config.S3_ACCESS_KEY,
+    secretKey: instance.config.S3_SECRET_KEY,
+    path: instance.config.STORAGE_PATH,
+    region: instance.config.S3_REGION,
+    endpoint: instance.config.S3_ENDPOINT,
+    clientEmail: instance.config.GCS_CLIENT_EMAIL,
+    privateKey: instance.config.GCS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    projectId: instance.config.GCS_PROJECT_ID,
+    useTmp: !!instance.config.STORAGE_PATH_USE_TMP_FOLDER,
+    connectionString: instance.config.ABS_CONNECTION_STRING,
+  })
+  instance.decorate('location', location)
 
   await instance.register(
     async function (i) {

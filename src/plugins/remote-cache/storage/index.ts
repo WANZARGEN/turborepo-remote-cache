@@ -37,12 +37,13 @@ export interface StorageProvider {
   exists: (artifactPath: string, cb: (err: Error | null, exists?: boolean) => void) => void
   createReadStream: (artifactPath: string) => NodeJS.ReadStream
   createWriteStream: (artifactPath: string) => NodeJS.WritableStream
+  afterCreateWriteStream?: (artifactPath: string) => Promise<void>
 }
 
-function createStorageLocation<Provider extends STORAGE_PROVIDERS>(
+async function createStorageLocation<Provider extends STORAGE_PROVIDERS>(
   provider: Provider,
   providerOptions: ProviderOptions<Provider>,
-): StorageProvider {
+): Promise<StorageProvider> {
   const { path = TURBO_CACHE_FOLDER_NAME, useTmp = TURBO_CACHE_USE_TMP_FOLDER } = providerOptions
 
   switch (provider) {
@@ -71,11 +72,11 @@ function createStorageLocation<Provider extends STORAGE_PROVIDERS>(
   }
 }
 
-export function createLocation<Provider extends STORAGE_PROVIDERS>(
+export async function createLocation<Provider extends STORAGE_PROVIDERS>(
   provider: Provider,
   providerOptions: ProviderOptions<Provider>,
 ) {
-  const location = createStorageLocation(provider, providerOptions)
+  const location = await createStorageLocation(provider, providerOptions)
 
   async function getCachedArtifact(artifactId: string, teamId: string) {
     return new Promise((resolve, reject) => {
@@ -108,7 +109,11 @@ export function createLocation<Provider extends STORAGE_PROVIDERS>(
   }
 
   async function createCachedArtifact(artifactId: string, teamId: string, artifact: Readable) {
-    return pipeline(artifact, location.createWriteStream(join(teamId, artifactId)))
+    const artifactPath = join(teamId, artifactId)
+    const writeStream = pipeline(artifact, location.createWriteStream(artifactPath))
+    await writeStream
+    if (location.afterCreateWriteStream) await location.afterCreateWriteStream(artifactPath)
+    return writeStream
   }
 
   return {
@@ -121,9 +126,9 @@ export function createLocation<Provider extends STORAGE_PROVIDERS>(
 declare module 'fastify' {
   interface FastifyInstance {
     location: {
-      existsCachedArtifact: ReturnType<typeof createLocation>['existsCachedArtifact']
-      getCachedArtifact: ReturnType<typeof createLocation>['getCachedArtifact']
-      createCachedArtifact: ReturnType<typeof createLocation>['createCachedArtifact']
+      existsCachedArtifact: Awaited<ReturnType<typeof createLocation>>['existsCachedArtifact']
+      getCachedArtifact: Awaited<ReturnType<typeof createLocation>>['getCachedArtifact']
+      createCachedArtifact: Awaited<ReturnType<typeof createLocation>>['createCachedArtifact']
     }
   }
 }
