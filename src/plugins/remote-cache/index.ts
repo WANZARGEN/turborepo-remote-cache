@@ -46,6 +46,8 @@ async function turboRemoteCache(
     userEmail: instance.config.GIT_USER_EMAIL,
     userPassword: instance.config.GIT_USER_PASSWORD,
     host: instance.config.GIT_HOST,
+    useLocalCache: !!instance.config.GIT_USE_LOCAL_CACHE,
+    cloneDepth: instance.config.GIT_CLONE_DEPTH,
   })
   instance.decorate('location', location)
 

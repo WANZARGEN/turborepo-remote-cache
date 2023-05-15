@@ -15,6 +15,8 @@ export type GitRepositoryOptions = {
   userName: string
   userEmail: string
   host: string
+  useLocalCache?: boolean
+  cloneDepth: number
 }
 
 export async function createGitRepository(options: GitRepositoryOptions): Promise<StorageProvider> {
@@ -56,6 +58,8 @@ export async function createGitRepository(options: GitRepositoryOptions): Promis
     console.debug('Cloning %s into %s', repoUrl, cacheDir)
     await git.exec(
       'clone',
+      '--depth',
+      `${options.cloneDepth}`,
       repoUrl,
       cacheDir,
       '--branch',
@@ -81,8 +85,13 @@ export async function createGitRepository(options: GitRepositoryOptions): Promis
   }
 
   const pull = async () => {
-    console.debug('Pulling fast-forward only from %s/%s', options.remote, options.branch)
-    await git.exec('merge', '--ff-only', `${options.remote}/${options.branch}`)
+    if (options.useLocalCache) {
+      console.debug('Merging fast-forward only from %s/%s', options.remote, options.branch)
+      await git.exec('merge', '--ff-only', `${options.remote}/${options.branch}`)
+    } else {
+      console.debug('Pulling %s/%s', options.remote, options.branch)
+      await git.exec('pull', '--rebase')
+    }
   }
 
   const checkout = async () => {

@@ -56,6 +56,8 @@ const schema = Type.Object(
     GIT_USER_EMAIL: Type.Optional(Type.String()),
     GIT_USER_PASSWORD: Type.Optional(Type.String()),
     GIT_HOST: Type.Optional(Type.String({ default: 'github.com' })),
+    GIT_USE_LOCAL_CACHE: Type.Optional(Type.Boolean({ default: true })),
+    GIT_CLONE_DEPTH: Type.Optional(Type.Number({ default: 0 })),
   },
   {
     additionalProperties: false,
